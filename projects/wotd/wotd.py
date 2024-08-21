@@ -1,4 +1,4 @@
-from langgraph.graph import StateGraph, MessagesState, END
+from langgraph.graph import StateGraph, MessagesState, END, START
 import requests
 import openai
 from datetime import datetime
@@ -40,12 +40,12 @@ def dictionary_api_call(state: WordOfTheDayState) -> WordOfTheDayState:
 
 # Node: OpenAI API Call for Examples
 def openai_api_call(state: WordOfTheDayState) -> WordOfTheDayState:
-    openai.api_key = os.getenv("OPENAI_API_KEY")
-    response = openai.ChatCompletion.create(
+    client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    response = client.chat.completions.create(
         model="gpt-4-1106-preview",
         messages=[{"role": "system", "content": f"Generate two example sentences using the word '{state['word']}'."}]
     )
-    examples = [msg['content'] for msg in response['choices'][0]['message']['content'].split('\n') if msg]
+    examples = response.choices[0].message.content.split('\n')
     return {"examples": examples}
 
 # Node: Response Construction
@@ -56,8 +56,15 @@ def response_construction(state: WordOfTheDayState) -> WordOfTheDayState:
 # Node: Output
 def output(state: WordOfTheDayState) -> WordOfTheDayState:
     # Output the final response
-    print(state["messages"][0]["content"])
-    return {}
+    print(state["messages"][0].content)
+    # Return the state as is to satisfy the requirement
+    return {
+        "messages": state["messages"],
+        "date": state["date"],
+        "word": state["word"],
+        "definition": state["definition"],
+        "examples": state["examples"]
+    }
 
 # Define the graph
 graph = StateGraph(WordOfTheDayState)
@@ -69,6 +76,7 @@ graph.add_node("response_construction", response_construction)
 graph.add_node("output", output)
 
 # Define the edges
+graph.add_edge(START, "date_input")
 graph.add_edge("date_input", "word_generation")
 graph.add_edge("word_generation", "dictionary_api_call")
 graph.add_conditional_edges("dictionary_api_call", lambda state: "word_generation" if state.get("word") is None else "openai_api_call")
