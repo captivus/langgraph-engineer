@@ -5,7 +5,8 @@
     "."
   ],
   "graphs": {
-    "engineer": "./src/langgraph_engineer/agent.py:graph"
+    "engineer": "./src/langgraph_engineer/agent.py:graph",
+    "wotd": "./projects/wotd/wotd.py:app"
   },
   "env": ".env"
 }
