@@ -1,0 +1,29 @@
+Build an API for a word of the day application. It should do the following:
+
+Generate a word of the day for a given date. The word should be randomly selected, and should be different each day.
+
+Give 2 examples of how to use the word in a sentence. Use OpenAI gpt-4-1106-preview to do this. An API key for OpenAI should be provided in a .env file. The examples should be generated entirely by gpt-4-1106-preview, but must be legitimate and contemporary uses of the word.
+Remember when using gpt-4-1106-preview that it is a chat model, and so to get completions you need to use the chat endpoint rather than the completions endpoint. The chat completions endpoint is at https://api.openai.com/v1/chat/completions
+Your OpenAI request body should adhere to the following schema:
+{{
+    "model": "gpt-4-1106-preview",
+    "messages": [{{"role": "user", "content": "Say this is a test!"}}],
+    "temperature": 0.1
+}}
+and the response you receive from the OpenAI API will have the following schema (more fields may be present, but you can ignore them):
+{{
+    'choices': [
+        {{
+          'message': {{
+              'role': 'assistant',
+            'content': 'She hummed a familiar tune while she worked, finding comfort in the melody that reminded her of her childhood. Realizing his guitar sounded off, he took a moment to tune the strings before continuing with the performance.'
+            }},
+      }}
+    ],
+}}
+
+Define the word of the day. Use the API at https://api.dictionaryapi.dev to define the word. The dictionary API does not require a key. Definitions of the word should be dictionary definitions. If a word isn't in the dictionary, choose another word.
+Users should be able to request the word of the day for any date past, present or future. Time zones are not important.
+Use the Python FastAPI library.
+For all external API requests, remember to be explicit about setting timeouts. Use 60 seconds as the timeout value for all requests.
+Give clear instruction on how to spin up the server, prefer uvicorn with reload option so that the code will automatically reload after changing
